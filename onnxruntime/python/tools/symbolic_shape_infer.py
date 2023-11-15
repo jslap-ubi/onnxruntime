@@ -202,7 +202,6 @@ class SymbolicShapeInference:
             "GatedRelativePositionBias": self._infer_GatedRelativePositionBias,
             "Gelu": self._infer_Gelu,
             "GemmFastGelu": self._infer_GemmFastGelu,
-            "GemmFloat8": self._infer_GemmFloat8,
             "GroupNorm": self._infer_GroupNorm,
             "SkipGroupNorm": self._infer_SkipGroupNorm,
             "LayerNormalization": self._infer_LayerNormalization,
@@ -2321,9 +2320,6 @@ class SymbolicShapeInference:
         self._propagate_shape_and_type(node)
 
     def _infer_GemmFastGelu(self, node):  # noqa: N802
-        self._compute_matmul_shape(node)
-
-    def _infer_GemmFloat8(self, node):  # noqa: N802
         self._compute_matmul_shape(node)
 
     def _infer_LayerNormalization(self, node):  # noqa: N802
