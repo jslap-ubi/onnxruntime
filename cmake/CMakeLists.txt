@@ -64,6 +64,7 @@ if("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_
 endif()
 
 # Options
+option(onnxruntime_USE_UNITY_BUILD "Enable Unity (Jumbo) build for ONNX Runtime" OFF)
 option(onnxruntime_RUN_ONNX_TESTS "Enable ONNX Compatibility Testing" OFF)
 option(onnxruntime_GENERATE_TEST_REPORTS "Enable test report generation" OFF)
 option(onnxruntime_ENABLE_STATIC_ANALYSIS "Enable static analysis" OFF)
@@ -881,6 +882,33 @@ function(onnxruntime_set_compile_flags target_name)
       target_compile_definitions(${target_name} PRIVATE DISABLE_FLOAT8_TYPES)
     endif()
 
+    if (onnxruntime_USE_UNITY_BUILD)
+
+      if(NOT ${target_name} MATCHES ".*test.*" AND NOT ${target_name} MATCHES "onnxruntime_pybind11_state")
+
+        get_target_property(srcs ${target_name} SOURCES)
+        set(__unity_src_files ${srcs})
+
+        # schemas files have forward declaration of templated classes that will be specialized in another TU. This causes a c++ error
+        list(FILTER __unity_src_files EXCLUDE REGEX "schemas\\.cc?$")
+        # provider files have forward declaration of templated classes that will be specialized in another TU. This causes a c++ error
+        list(FILTER __unity_src_files EXCLUDE REGEX "provider\\.cc?$")
+        # contrib files are not good candidates for Unity builds: They might clash with one another.
+        list(FILTER __unity_src_files EXCLUDE REGEX "/contrib_ops/")
+
+        set_source_files_properties(${__unity_src_files} PROPERTIES UNITY_GROUP "Unity_Group" )
+
+        set_target_properties(${target_name} PROPERTIES
+          UNITY_BUILD ON
+          UNITY_BUILD_MODE GROUP)
+
+        if (MSVC)
+          target_compile_options("${target_name}" PRIVATE /bigobj)
+        endif()
+      endif()
+    endif()
+
+
     if (onnxruntime_ENABLE_ATEN)
       target_compile_definitions(${target_name} PRIVATE ENABLE_ATEN)
     endif()
@@ -1084,6 +1112,7 @@ function(onnxruntime_add_include_to_target dst_target)
       endif()
     endforeach()
 endfunction()
+
 
 # ACL
 if (onnxruntime_USE_ACL OR onnxruntime_USE_ACL_1902 OR onnxruntime_USE_ACL_1905 OR onnxruntime_USE_ACL_1908 OR onnxruntime_USE_ACL_2002)
