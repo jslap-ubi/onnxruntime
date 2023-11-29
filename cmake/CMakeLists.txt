@@ -872,7 +872,7 @@ function(onnxruntime_set_compile_flags target_name)
 
     if (onnxruntime_USE_UNITY_BUILD)
 
-      if(NOT ${target_name} MATCHES ".*test.*")
+      if(NOT ${target_name} MATCHES ".*test.*" AND NOT ${target_name} MATCHES "onnxruntime_pybind11_state")
 
         get_target_property(srcs ${target_name} SOURCES)
         set(__unity_src_files ${srcs})
@@ -1101,29 +1101,6 @@ function(onnxruntime_add_include_to_target dst_target)
     endforeach()
 endfunction()
 
-function(onnxruntime_post_configuration target_name)
-  #unity stuff
-
-  if (onnxruntime_USE_UNITY_BUILD)
-
-
-    get_target_property(srcs ${target_name} SOURCES)
-    message(STATUS "Files in target ${target_name} : ${srcs}")
-    set(__unity_src_files ${srcs})
-    list(FILTER __unity_src_files EXCLUDE REGEX "\\schemas.cc?$")
-    message(STATUS "Files in unity  target ${target_name} : ${__unity_src_files}")
-
-    set_source_files_properties(${__unity_src_files} PROPERTIES UNITY_GROUP "Unity_Group" )
-
-    set_target_properties(${target_name} PROPERTIES
-      UNITY_BUILD ON
-      UNITY_BUILD_MODE GROUP)
-
-    if (MSVC)
-      target_compile_options("${target_name}" PRIVATE /bigobj)
-    endif()
-  endif()
-endfunction()
 
 # ACL
 if (onnxruntime_USE_ACL OR onnxruntime_USE_ACL_1902 OR onnxruntime_USE_ACL_1905 OR onnxruntime_USE_ACL_1908 OR onnxruntime_USE_ACL_2002)
