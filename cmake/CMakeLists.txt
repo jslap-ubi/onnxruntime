@@ -64,7 +64,7 @@ if("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_
 endif()
 
 # Options
-option(onnxruntime_USE_UNITY_BUILD "Enable Unity (Jumbo) build for ONNX Runtime" ON)
+option(onnxruntime_USE_UNITY_BUILD "Enable Unity (Jumbo) build for ONNX Runtime" OFF)
 option(onnxruntime_RUN_ONNX_TESTS "Enable ONNX Compatibility Testing" OFF)
 option(onnxruntime_GENERATE_TEST_REPORTS "Enable test report generation" OFF)
 option(onnxruntime_ENABLE_STATIC_ANALYSIS "Enable static analysis" OFF)
